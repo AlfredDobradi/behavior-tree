@@ -335,10 +335,7 @@ func (n *TavernNode) Condition() *Condition {
 }
 func (n *TavernNode) OnSuccess() *Sequence { return nil }
 func (n *TavernNode) Execute() Status {
-	newGold := n.character.Gold - 10
-	if newGold < 0 {
-		newGold = 0
-	}
+	newGold := max(n.character.Gold-10, 0)
 	n.character.Gold = newGold
 	slog.Info("tavern visited")
 	return StatusSuccess
@@ -396,7 +393,12 @@ func executeScenario(ch *Character) *Character {
 }
 
 func TestBasicScenario(t *testing.T) {
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelWarn})))
+	level := slog.LevelWarn
+	if testing.Verbose() {
+		level = slog.LevelDebug
+	}
+
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})))
 
 	tests := []struct {
 		label          string
